@@ -77,22 +77,6 @@ main(int argc, char** argv)
   /* what name to show for usage message */
   progname=strdup(basename(argv[0]));
 
-  char *locale;
-  locale=setlocale(LC_CTYPE, ""); /* Allow multibyte characters, UTF-8 */
-  if (locale==NULL || strlen(locale)==0) {
-    locale=strdup("en_US");	/* Default to US English */
-  }
-  else {
-    locale=strdup(locale);
-  }
-  char *end=strstr(locale, "."); /* Find period in "en_US.UTF-8" */
-  if (end) *end='\0';		 /* Truncate to just "en_US" */
-
-  /* default dictionary file */
-  char *dictfile;
-  asprintf(&dictfile, "/usr/share/hyphen/hyph_%s.dic", locale);
-  printf("Default dictfile is: %s\n", dictfile);
-
   /* first parse the command line options */
   if (argv[arg]) {
     if (strcmp(argv[arg], "-o") == 0) {
@@ -115,16 +99,43 @@ main(int argc, char** argv)
     exit(1);
   }
 
+
+  char *locale;
+  locale=setlocale(LC_CTYPE, ""); /* Allow multibyte characters, UTF-8 */
+
+  /* Find default dictionary file based on locale */
+  if (locale==NULL || strlen(locale)==0) {
+    locale=strdup("en_US");	/* Default to US English */
+  }
+  else {
+    locale=strdup(locale);
+  }
+  char *end=strstr(locale, "."); /* Find period in "en_US.UTF-8" */
+  if (end) *end='\0';		 /* Truncate to just "en_US" */
+
+  char *dictfile;
+  asprintf(&dictfile, "/usr/share/hyphen/hyph_%s.dic", locale);
+
   /* load the hyphenation dictionary */  
-  /* TODO: Ought to check for /usr/share/hyph_${LANG%.*}.dic. */
   if ((dict = hnj_hyphen_load(dictfile)) == NULL) {
-    fprintf(stderr, "Could not load dictionary file\n");
+    /* First guess failed. Try again. */
+    fprintf(stderr,
+	    "Could not load dictionary file based on locale \"%s\"\n",
+	    locale);
     perror(dictfile);
-    fflush(stderr);
-    exit(1);
+    free(dictfile);
+    asprintf(&dictfile, "/usr/share/hyphen/hyph_%s.dic", "en_US");
+    fprintf(stderr, "Falling back to \"%s\"\n", dictfile);
+    if ((dict = hnj_hyphen_load(dictfile)) == NULL) {
+      /* Nope */
+      fprintf(stderr,
+	      "Couldn't load that, either. Please install hyphen-en-us\n");
+      perror(dictfile);
+      fflush(stderr);
+      exit(1);
+    }
   }
 
-  
 
   while (arg<argc) {
     char *word = argv[arg++];
