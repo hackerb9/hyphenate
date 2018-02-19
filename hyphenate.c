@@ -1,8 +1,9 @@
-#define _GNU_SOURCE		/* GNU, not posix, basename() */
+#define _GNU_SOURCE		/* GNU basename() and asprintf() */
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <locale.h>		/* Allow use of UTF-8, etc */
 
 #include "hyphen.h"
 
@@ -58,7 +59,6 @@ void single_hyphenations(char * word, char * hyphen, char ** rep, int * pos, int
 int 
 main(int argc, char** argv)
 {
-
   HyphenDict *dict;
   int k, i, j;
   int  nHyphCount;
@@ -77,12 +77,23 @@ main(int argc, char** argv)
   /* what name to show for usage message */
   progname=strdup(basename(argv[0]));
 
+  char *locale;
+  locale=setlocale(LC_CTYPE, ""); /* Allow multibyte characters, UTF-8 */
+  if (locale==NULL || strlen(locale)==0) {
+    locale=strdup("en_US");	/* Default to US English */
+  }
+  else {
+    locale=strdup(locale);
+  }
+  char *end=strstr(locale, "."); /* Find period in "en_US.UTF-8" */
+  if (end) *end='\0';		 /* Truncate to just "en_US" */
+
   /* default dictionary file */
-  char *dictfile="/usr/share/hyphen/hyph_en_US.dic";
+  char *dictfile;
+  asprintf(&dictfile, "/usr/share/hyphen/hyph_%s.dic", locale);
+  printf("Default dictfile is: %s\n", dictfile);
 
   /* first parse the command line options */
-  /* arg1 - hyphen dictionary file, arg2 - file of words to check */
-
   if (argv[arg]) {
     if (strcmp(argv[arg], "-o") == 0) {
       optd = 0;
@@ -105,6 +116,7 @@ main(int argc, char** argv)
   }
 
   /* load the hyphenation dictionary */  
+  /* TODO: Ought to check for /usr/share/hyph_${LANG%.*}.dic. */
   if ((dict = hnj_hyphen_load(dictfile)) == NULL) {
     fprintf(stderr, "Could not load dictionary file\n");
     perror(dictfile);
