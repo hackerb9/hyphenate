@@ -1,3 +1,4 @@
+CFLAGS = -g -Wall
 LDLIBS = -lhyphen
 
 hyphenate:	hyphenate.c
