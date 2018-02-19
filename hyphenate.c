@@ -128,11 +128,10 @@ main(int argc, char** argv)
     /* and hyphen information */
     lcword = (char *) malloc(k+1);
     hyphens = (char *)malloc(k+5);
-    /* basic ascii lower-case, not suitable for real-world usage*/
+    /* Assumes each byte is a character, not suitable for real-world usage*/
+    /* TODO: Investigte ICU and u_strToLower() */
     for (i = 0; i < k; ++i) {
-      lcword[i] = word[i];
-      if ( (lcword[i] >= 'A') && (lcword[i] <= 'Z') )
-	lcword[i] += 32;
+      lcword[i] = tolower(word[i]);
     }
 
     /* first remove any trailing periods */
