@@ -18,15 +18,15 @@ This is almost purely the example.c that comes with the source for
 libhyphen. I merely changed it to work more nicely from the command
 line.
 
-## Hyphenation dictionaries
+## Hyphenation dictionaries and libhyphen
 
 Install with:
 
-	apt install hyphen-en-us
+	apt install hyphen-en-us libhyphen0
 
-Note that if you have libreoffice already installed on your machine,
-you already have the necessary hyphenation dictionaries installed in
-`/usr/share/hyphen/`.
+Note that if you have libreoffice installed on your machine, you
+already have the necessary hyphenation dictionaries and libraries.
 
 Alternate language dictionaries are available. 
+You can see what dictionaries you have by checking `/usr/share/hyphen/`.
 
