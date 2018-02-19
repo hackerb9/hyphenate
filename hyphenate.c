@@ -1,3 +1,4 @@
+#define _GNU_SOURCE		/* GNU, not posix, basename() */
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -7,12 +8,13 @@
 
 #define BUFSIZE 1000
 
+char *progname;			/* short program name, set by main */
 void help() {
-    fprintf(stderr,"correct syntax is:\n"); 
-    fprintf(stderr,"example [-d | -dd] hyphen_dictionary_file file_of_words_to_check\n");
-    fprintf(stderr,"-o = use old algorithm (without non-standard hyphenation)\n");
-    fprintf(stderr,"-d = hyphenation with listing of the possible hyphenations\n");
-    fprintf(stderr,"-n = print hyphenation vector\n");
+    printf("Usage:\n"); 
+    printf("%s [-o | -d | -n] <word ...>\n", progname);
+    printf("\t-o = use old algorithm (without non-standard hyphenation)\n");
+    printf("\t-d = hyphenation with listing of the possible hyphenations\n");
+    printf("\t-n = print hyphenation vector\n");
 }
 
 /* get a pointer to the nth 8-bit or UTF-8 character of the word */
@@ -75,6 +77,8 @@ main(int argc, char** argv)
     char ** rep;
     int * pos;
     int * cut;
+
+    progname=strdup(basename(argv[0]));
 
   /* first parse the command line options */
   /* arg1 - hyphen dictionary file, arg2 - file of words to check */
