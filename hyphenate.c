@@ -78,7 +78,11 @@ main(int argc, char** argv)
     int * pos;
     int * cut;
 
+    /* what name to show for usage message */
     progname=strdup(basename(argv[0]));
+
+    /* default dictionary file */
+    char *dictfile="/usr/share/hyphen/hyph_en_US.dic";
 
   /* first parse the command line options */
   /* arg1 - hyphen dictionary file, arg2 - file of words to check */
@@ -114,8 +118,9 @@ main(int argc, char** argv)
   }
 
   /* load the hyphenation dictionary */  
-  if ((dict = hnj_hyphen_load(argv[df])) == NULL) {
-       fprintf(stderr, "Couldn't find file %s\n", argv[df]);
+  if ((dict = hnj_hyphen_load(dictfile)) == NULL) {
+       fprintf(stderr, "Could not load dictionary file\n");
+       perror(dictfile);
        fflush(stderr);
        exit(1);
   }
