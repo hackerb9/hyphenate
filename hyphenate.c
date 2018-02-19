@@ -28,7 +28,7 @@ char * hindex(char * word, int n, int utf8) {
   return word;
 }
 
-/* list possible hyphenations with -dd option (example for the usage of the hyphenate2() function) */
+/* list possible hyphenations with -d option (example for the usage of the hyphenate2() function) */
 void single_hyphenations(char * word, char * hyphen, char ** rep, int * pos, int * cut, int utf8) {
   int i, k, j = 0;
   char r;
@@ -124,7 +124,7 @@ main(int argc, char** argv)
 
     /* set aside some buffers to hold lower cased */
     /* and hyphen information */
-    lcword = (char *) malloc(k+1);
+    lcword = (char *) calloc(k+1, 1); /* initialize to \0s */
     hyphens = (char *)malloc(k+5);
     /* Assumes each byte is a character, not suitable for real-world usage*/
     /* TODO: Investigte ICU and u_strToLower() */
@@ -133,7 +133,6 @@ main(int argc, char** argv)
     }
 
     /* now actually try to hyphenate the word */
-       
     rep = NULL;
     pos = NULL;
     cut = NULL;
