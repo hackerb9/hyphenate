@@ -14,13 +14,14 @@ Command line hyphenation of words using libhyphen
 
 ## Example? Example!
 
-This is almost purely the example.c that comes with the source for
+This is almost purely the `example.c` that comes with the source for
 libhyphen. I merely changed it to work more nicely from the command
 line.
 
 ## Hyphenation dictionaries and libhyphen
 
-Install with:
+If you don't have the dictionaries, you can install them on most
+Debian derivatives like so:
 
 	apt install hyphen-en-us libhyphen0
 
