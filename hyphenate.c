@@ -60,7 +60,6 @@ main(int argc, char** argv)
 {
 
     HyphenDict *dict;
-    int df;
     int wtc;
     FILE* wtclst;
     int k, n, i, j, c;
@@ -103,16 +102,7 @@ main(int argc, char** argv)
        }
   }
 
-  if (argv[arg]) {
-       df = arg++;
-  } else {
-    help();
-    exit(1);
-  }
-
-  if (argv[arg]) {
-       wtc = arg++;
-  } else {
+  if (!argv[arg]) {
     help();
     exit(1);
   }
@@ -125,19 +115,14 @@ main(int argc, char** argv)
        exit(1);
   }
 
-  /* open the words to check list */
-  wtclst = fopen(argv[wtc],"r");
-  if (!wtclst) {
-    fprintf(stderr,"Error - could not open file of words to check\n");
-    exit(1);
-  }
+  
 
+  while (arg<argc) {
+    char *word = argv[arg++];
     
-  /* now read each word from the wtc file */
-    while(fgets(buf,BUFSIZE,wtclst) != NULL) {
-       k = strlen(buf);
-       if (k && buf[k - 1] == '\n') buf[k - 1] = '\0';
-       if (k >=2 && buf[k - 2] == '\r') buf[k-- - 2] = '\0';
+       k = strlen(word);
+       if (k && word[k - 1] == '\n') word[k - 1] = '\0';
+       if (k >=2 && word[k - 2] == '\r') word[k-- - 2] = '\0';
 
        /* set aside some buffers to hold lower cased */
        /* and hyphen information */
@@ -145,7 +130,7 @@ main(int argc, char** argv)
        hyphens = (char *)malloc(k+5);
        /* basic ascii lower-case, not suitable for real-world usage*/
        for (i = 0; i < k; ++i) {
-         lcword[i] = buf[i];
+         lcword[i] = word[i];
          if ( (lcword[i] >= 'A') && (lcword[i] <= 'Z') )
            lcword[i] += 32;
        }
@@ -186,7 +171,7 @@ main(int argc, char** argv)
          hyphword = (char *) malloc(k+1+nHyphCount);
          j = 0;
          for (i = 0; i < n; i++) {
-	   hyphword[j++] = buf[i];
+	   hyphword[j++] = word[i];
            if (hyphens[i]&1) {
 	      hyphword[j++] = '-';
 	   }
