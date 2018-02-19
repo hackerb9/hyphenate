@@ -60,10 +60,7 @@ main(int argc, char** argv)
 {
 
   HyphenDict *dict;
-  int wtc;
-  FILE* wtclst;
-  int k, n, i, j, c;
-  char buf[BUFSIZE + 1];
+  int k, i, j;
   int  nHyphCount;
   char *hyphens;
   char *lcword;
@@ -121,6 +118,7 @@ main(int argc, char** argv)
     char *word = argv[arg++];
     
     k = strlen(word);
+
     if (k && word[k - 1] == '\n') word[k - 1] = '\0';
     if (k >=2 && word[k - 2] == '\r') word[k-- - 2] = '\0';
 
@@ -134,11 +132,6 @@ main(int argc, char** argv)
       lcword[i] = tolower(word[i]);
     }
 
-    /* first remove any trailing periods */
-    n = k-1;
-    while((n >=0) && (lcword[n] == '.')) n--;
-    n++;
-
     /* now actually try to hyphenate the word */
        
     rep = NULL;
@@ -146,8 +139,8 @@ main(int argc, char** argv)
     cut = NULL;
     hword[0] = '\0';
 
-    if ((!optd && hnj_hyphen_hyphenate(dict, lcword, n-1, hyphens)) ||
-	(optd && hnj_hyphen_hyphenate2(dict, lcword, n-1, hyphens, hword, &rep, &pos, &cut))) {
+    if ((!optd && hnj_hyphen_hyphenate(dict, lcword, k, hyphens)) ||
+	(optd && hnj_hyphen_hyphenate2(dict, lcword, k, hyphens, hword, &rep, &pos, &cut))) {
       free(hyphens);
       free(lcword);
       fprintf(stderr, "hyphenation error\n");
@@ -157,19 +150,15 @@ main(int argc, char** argv)
     if (optn) fprintf(stderr, "%s\n", hyphens); 
 
     if (!optd) {
-      /* now backfill hyphens[] for any removed periods */
-      for (c = n; c < k; c++) hyphens[c] = '0';
-      hyphens[k] = '\0';
-
       /* now create a new char string showing hyphenation positions */
       /* count the hyphens and allocate space for the new hypehanted string */
       nHyphCount = 0;
-      for (i = 0; i < n; i++)
+      for (i = 0; i < k; i++)
 	if (hyphens[i]&1)
 	  nHyphCount++;
       hyphword = (char *) malloc(k+1+nHyphCount);
       j = 0;
-      for (i = 0; i < n; i++) {
+      for (i = 0; i < k; i++) {
 	hyphword[j++] = word[i];
 	if (hyphens[i]&1) {
 	  hyphword[j++] = '-';
@@ -185,7 +174,7 @@ main(int argc, char** argv)
 
       if (optdd) single_hyphenations(lcword, hyphens, rep, pos, cut, dict->utf8);
       if (rep) {
-	for (i = 0; i < n - 1; i++) {
+	for (i = 0; i < k - 1; i++) {
 	  if (rep[i]) free(rep[i]);
 	}
 	free(rep);
@@ -197,7 +186,6 @@ main(int argc, char** argv)
     free(lcword);
   }
 
-  fclose(wtclst);
   hnj_hyphen_free(dict);
   return 0;
 }
