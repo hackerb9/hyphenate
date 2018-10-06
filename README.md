@@ -16,13 +16,14 @@ Command line hyphenation of words using libhyphen
 
 This is almost purely the `example.c` that comes with the source for
 libhyphen. I just cleaned it up and changed it to work nicely from the
-command line. 
+command line. I also fixed the UTF-8 multibyte character support
+(isn't that the "spiﬃ=est"!).
 
 ## Installation
 
     git clone http://github.com/hackerb9/hyphenation
     cd hyphenation
-    sudo apt install libhyphen0 hyphen-en-us
+    sudo apt install libhyphen-dev libhyphen0 hyphen-en-us
     make
     make install
 
@@ -31,18 +32,22 @@ command line.
 If you don't have the dictionaries, you can install them on most
 Debian derivatives like so:
 
-	apt install hyphen-en-us libhyphen0
-
-Note that if you have libreoffice installed on your machine, you
-already have the necessary hyphenation dictionaries and libraries.
+	apt install hyphen-en-us
 
 You can see what dictionaries you have installed on your computer by
-checking `/usr/share/hyphen/`.
+checking `/usr/share/hyphen/`. If you have LibreOffice installed on
+your machine, you already have the necessary hyphenation dictionaries
+and libraries.
 
 ### Alternate language dictionaries are available.
 
+You can install the hyphenation patterns for whatever language you
+prefer, from Afrikaans to Zulu. For example, for German:
+
+    apt install hyphen-de
+
 If you have your computer set up for a different locale (e.g.,
-LANG="de_DE"), this program should automatically look for the correct
+`LANG="de_DE"`), this program should automatically look for the correct
 hyphenation dictionary. However, this has not been tested by a real
 user. If it doesn't work, please file a bug report.
 
