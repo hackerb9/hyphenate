@@ -1,9 +1,11 @@
 #define _GNU_SOURCE		/* GNU basename() and asprintf() */
 #include <string.h>
-#include <stdlib.h>
+#include <stdlib.h>		/* wcstombs(), etc */
 #include <stdio.h>
 #include <ctype.h>
 #include <locale.h>		/* Allow use of UTF-8, etc */
+#include <wchar.h>		/* Wide characters, mbrinit, mbsrtowc */
+#include <wctype.h>		/* For wtolower() */
 
 #include "hyphen.h"
 
@@ -137,23 +139,37 @@ main(int argc, char** argv)
   }
 
 
+  wchar_t word[BUFSIZE];
   while (arg<argc) {
-    char *word = argv[arg++];
-    
-    k = strlen(word);
+    const char *src = argv[arg++];
+    mbstate_t state = { 0 };
 
+    /* libhyphen works with multibyte (UTF-8) strings, but to
+       lowercase we need to convert to a wide-character string. */
+    if (mbsrtowcs(word, &src, BUFSIZE, &state) == -1) {
+      perror(src);
+    }
+    
+    k = wcslen(word);		/* Length as wide-character string.  */
+
+    /* Chomp */
     if (k && word[k - 1] == '\n') word[k - 1] = '\0';
     if (k >=2 && word[k - 2] == '\r') word[k-- - 2] = '\0';
 
-    /* set aside some buffers to hold lower cased */
-    /* and hyphen information */
-    lcword = (char *) calloc(k+1, 1); /* initialize to \0s */
-    hyphens = (char *)malloc(k+5);
-    /* Assumes each byte is a character, not suitable for real-world usage*/
-    /* TODO: Investigte ICU and u_strToLower() */
+    /* Lowercase the wide-character string */
     for (i = 0; i < k; ++i) {
-      lcword[i] = tolower(word[i]);
+      word[i] = towlower(word[i]);
     }
+
+    /* Convert wide-character back to multibyte string */
+    k=wcstombs(NULL,word,0);	      /* Now k is length as multibyte string */
+    lcword = (char *) malloc(k+1); 
+    if (wcstombs(lcword, word, k+1) == -1) {
+      perror("wcstombs could not convert back to multibyte string.");
+    }
+
+    /* Set aside a buffer to hold hyphen information */
+    hyphens = (char *)malloc(k+5);			 /* Why 5? */
 
     /* now actually try to hyphenate the word */
     rep = NULL;
